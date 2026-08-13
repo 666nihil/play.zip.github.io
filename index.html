@@ -1,1 +1,1094 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PLAY.ZIP — juegos gratis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0909;
+    --surface: #161313;
+    --surface-2: #1e1a1a;
+    --violet: #e8231a;
+    --violet-dim: #6e1712;
+    --phosphor: #ff453d;
+    --text: #f2efee;
+    --muted: #8a8280;
+    --border: #2c2626;
+    --font-display: 'Press Start 2P', monospace;
+    --font-body: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
 
+  *{ margin:0; padding:0; box-sizing:border-box; cursor:none !important; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(232,35,26,0.14), transparent 45%),
+      radial-gradient(circle at 85% 20%, rgba(232,35,26,0.07), transparent 40%),
+      var(--bg);
+    color:var(--text);
+    font-family: var(--font-body);
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    z-index:1;
+    pointer-events:none;
+    opacity:.22;
+    mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  @media (pointer:coarse){
+    *{ cursor:auto !important; }
+    #cursor-dot, #cursor-ring{ display:none; }
+  }
+
+  #cursor-ring{
+    position:fixed;
+    top:0; left:0;
+    width:34px; height:34px;
+    border:1.5px solid var(--violet);
+    border-radius:50%;
+    pointer-events:none;
+    z-index:9999;
+    transform:translate(-50%,-50%);
+    transition: width .25s cubic-bezier(.2,.9,.3,1.3), height .25s cubic-bezier(.2,.9,.3,1.3),
+                border-color .25s ease, box-shadow .25s ease, background .25s ease;
+    box-shadow: 0 0 12px rgba(232,35,26,0.35);
+  }
+  #cursor-dot{
+    position:fixed;
+    top:0; left:0;
+    width:6px; height:6px;
+    background:var(--phosphor);
+    border-radius:50%;
+    pointer-events:none;
+    z-index:10000;
+    transform:translate(-50%,-50%);
+    box-shadow: 0 0 8px var(--phosphor);
+  }
+  body.hovering #cursor-ring{
+    width:64px; height:64px;
+    border-color: var(--phosphor);
+    background: rgba(255,69,61,0.08);
+    box-shadow: 0 0 26px rgba(255,69,61,0.45);
+  }
+  body.hovering-big #cursor-ring{
+    width:100px; height:100px;
+    border-color: var(--phosphor);
+    background: rgba(255,69,61,0.06);
+  }
+  body.dragging #cursor-ring{
+    width:80px; height:80px;
+    border-color: var(--phosphor);
+    background: rgba(255,69,61,0.14);
+  }
+  body.clicking #cursor-dot{
+    width:10px; height:10px;
+  }
+
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 32px; }
+
+  header{
+    position:sticky; top:18px; z-index:100;
+    display:flex; justify-content:center;
+    pointer-events:none;
+  }
+  nav.wrap{
+    pointer-events:auto;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:28px;
+    height:60px;
+    padding:0 12px 0 22px;
+    max-width:820px;
+    width:calc(100% - 64px);
+    border-radius:100px;
+    background: rgba(10,9,9,0.72);
+    border:1px solid var(--border);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 20px 50px -20px rgba(0,0,0,0.7);
+  }
+  .logo{
+    font-family:var(--font-display);
+    font-size:13px;
+    letter-spacing:1px;
+    color:var(--text);
+    white-space:nowrap;
+  }
+  .logo span{ color:var(--phosphor); }
+  .nav-links{ display:flex; gap:28px; align-items:center; }
+  .nav-links a{
+    font-size:14px; color:var(--muted); font-weight:500;
+    position:relative; padding:4px 0;
+    display:inline-block;
+    transform-origin:center;
+    transition: transform .2s cubic-bezier(.2,.9,.3,1.3), color .2s ease;
+  }
+  .nav-links a:hover{ color:var(--text); transform:scale(1.14); }
+  .btn{
+    font-family:var(--font-mono);
+    font-size:13px;
+    font-weight:600;
+    padding:11px 22px;
+    border-radius:100px;
+    border:1px solid var(--violet);
+    background:transparent;
+    color:var(--text);
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+  }
+  .btn:hover{
+    background:var(--violet);
+    box-shadow: 0 0 24px rgba(232,35,26,0.5);
+    transform:translateY(-1px) scale(1.06);
+  }
+  .btn.solid{
+    background:var(--violet);
+    border-color:var(--violet);
+    box-shadow: 0 0 18px rgba(232,35,26,0.35);
+  }
+  .btn.solid:hover{
+    background:#ff3b30;
+    box-shadow: 0 0 28px rgba(232,35,26,0.6);
+  }
+  .btn.ghost{
+    border-color:var(--border);
+  }
+  .btn.ghost:hover{
+    background:var(--surface-2);
+    border-color:var(--violet);
+  }
+  .header-actions{ display:flex; align-items:center; gap:10px; }
+  .header-actions .btn{ padding:9px 18px; font-size:12px; }
+
+  @media (max-width: 860px){
+    nav.wrap{ padding:0 8px 0 18px; gap:14px; width:calc(100% - 24px); }
+  }
+
+  .hero{
+    padding:110px 0 70px;
+    display:grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap:60px;
+    align-items:center;
+  }
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--phosphor);
+    letter-spacing:2px;
+    text-transform:uppercase;
+    margin-bottom:22px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:8px; height:8px;
+    background:var(--phosphor);
+    border-radius:50%;
+    box-shadow:0 0 10px var(--phosphor);
+    animation:blink 1.6s infinite;
+  }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+  h1{
+    font-family:var(--font-display);
+    font-size:38px;
+    line-height:1.55;
+    letter-spacing:.5px;
+  }
+  h1 em{
+    font-style:normal;
+    color:var(--phosphor);
+  }
+  .hero p.sub{
+    margin-top:26px;
+    font-size:17px;
+    color:var(--muted);
+    max-width:480px;
+    line-height:1.6;
+  }
+  .hero-actions{
+    display:flex; gap:16px; margin-top:38px;
+  }
+
+  .cartridge{
+    position:relative;
+    width:100%;
+    aspect-ratio: 1/1;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .cart-body{
+    width:280px; height:280px;
+    background:linear-gradient(160deg, var(--surface-2), var(--surface));
+    border:1px solid var(--border);
+    border-radius:24px;
+    position:relative;
+    box-shadow: 0 40px 80px -30px rgba(232,35,26,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+    animation: float 5s ease-in-out infinite;
+  }
+  @keyframes float{
+    0%,100%{ transform: translateY(0) rotate(-3deg); }
+    50%{ transform: translateY(-16px) rotate(2deg); }
+  }
+  .cart-body::before{
+    content:'';
+    position:absolute;
+    top:24px; left:24px; right:24px; height:90px;
+    border-radius:12px;
+    background: repeating-linear-gradient(45deg, var(--violet-dim), var(--violet-dim) 6px, transparent 6px, transparent 12px);
+    opacity:.5;
+  }
+  .cart-body::after{
+    content:'';
+    position:absolute;
+    bottom:26px; left:24px; right:24px; height:2px;
+    background:var(--border);
+    box-shadow: 0 12px 0 var(--border), 0 24px 0 var(--border);
+  }
+  .cart-label{
+    position:absolute; top:130px; left:12px; right:12px;
+    font-family:var(--font-mono); font-size:11px; 
+    letter-spacing:1px;
+    text-align: center;
+  }
+  .cart-label a:hover {
+    text-decoration: underline;
+  }
+
+  .stats{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    border:1px solid var(--border);
+    border-radius:18px;
+    background:var(--surface);
+    overflow:hidden;
+    margin-bottom:80px;
+  }
+  .stat{
+    padding:26px 20px;
+    text-align:center;
+    border-right:1px solid var(--border);
+  }
+  .stat:last-child{ border-right:none; }
+  .stat .num{
+    font-family:var(--font-display);
+    font-size:20px;
+    color:var(--phosphor);
+    display:block;
+    margin-bottom:10px;
+  }
+  .stat .label{
+    font-family:var(--font-mono);
+    font-size:11px;
+    color:var(--muted);
+    letter-spacing:.5px;
+    text-transform:uppercase;
+  }
+
+  section{ padding:70px 0; }
+  .section-head{
+    display:flex; align-items:flex-end; justify-content:space-between;
+    margin-bottom:44px; gap:20px; flex-wrap:wrap;
+  }
+  .section-head h2{
+    font-family:var(--font-display);
+    font-size:22px;
+    line-height:1.5;
+  }
+  .section-head p{
+    color:var(--muted); font-size:14px; max-width:380px;
+  }
+
+  .steps{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:24px;
+  }
+  .step{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:30px 26px;
+    transition: border-color .25s ease, transform .25s ease;
+  }
+  .step:hover{
+    border-color:var(--violet);
+    transform:translateY(-4px);
+  }
+  .step .n{
+    font-family:var(--font-display);
+    font-size:12px;
+    color:var(--violet);
+    margin-bottom:20px;
+    display:block;
+  }
+  .step h4{ font-size:17px; margin-bottom:10px; }
+  .step p{ color:var(--muted); font-size:14px; line-height:1.6; }
+
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:24px;
+  }
+  .game-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:18px;
+    overflow:hidden;
+    transition: transform .25s ease, border-color .25s ease, box-shadow .2s ease, opacity .2s ease;
+    text-align:left;
+    display:block;
+    width:100%;
+  }
+  .game-card:hover{
+    transform: translateY(-6px) scale(1.02);
+    border-color: var(--violet);
+    box-shadow: 0 24px 50px -20px rgba(232,35,26,0.45);
+  }
+  .thumb{
+    height:180px;
+    position:relative;
+    display:block;
+    overflow: hidden;
+    background: #000;
+  }
+  .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .thumb::after{
+    content:'';
+    position:absolute; inset:0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0 2px, transparent 2px 4px);
+    pointer-events: none;
+  }
+  .card-body{ padding:18px 20px 22px; }
+  .card-body h4{ font-size:16px; margin-bottom:6px; }
+  .card-meta{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:14px;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--muted);
+  }
+  .genre{
+    color:var(--phosphor);
+    background:rgba(255,69,61,0.08);
+    padding:3px 10px;
+    border-radius:100px;
+  }
+
+  footer{
+    border-top:1px solid var(--border);
+    padding:60px 0 36px;
+    margin-top:40px;
+  }
+  .footer-grid{
+    display:grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap:32px;
+    padding-bottom:40px;
+  }
+  .footer-grid .logo{ margin-bottom:14px; }
+  .footer-grid p{ color:var(--muted); font-size:13px; max-width:240px; line-height:1.6; }
+  .footer-col h5{
+    font-family:var(--font-mono);
+    font-size:11px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin-bottom:16px;
+  }
+  .footer-col a{
+    display:inline-block;
+    font-size:13.5px;
+    color:var(--text);
+    margin-bottom:12px;
+    opacity:.85;
+    transform-origin:left;
+    transition: transform .2s cubic-bezier(.2,.9,.3,1.3), color .2s ease, opacity .2s ease;
+  }
+  .footer-col a:hover{ color:var(--phosphor); opacity:1; transform:scale(1.08); }
+  .footer-bottom{
+    border-top:1px solid var(--border);
+    padding-top:26px;
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:var(--font-mono); font-size:12px; color:var(--muted);
+    flex-wrap:wrap; gap:14px;
+  }
+
+  #view-detail{ display:none; }
+  .back-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--font-mono); font-size:13px;
+    color:var(--muted);
+    padding:10px 0;
+    margin-top:36px; margin-bottom:30px;
+    transition: color .2s ease, transform .2s ease;
+    transform-origin:left;
+  }
+  .back-btn:hover{ color:var(--phosphor); transform:translateX(-4px) scale(1.05); }
+
+  .detail-top{
+    display:grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap:48px;
+    margin-bottom:60px;
+  }
+  .detail-thumb{
+    border-radius:22px;
+    aspect-ratio: 4/3;
+    display:block;
+    position:relative;
+    overflow:hidden;
+    border:1px solid var(--border);
+    background: #000;
+  }
+  .detail-thumb img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .detail-thumb::after{
+    content:'';
+    position:absolute; inset:0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0 2px, transparent 2px 4px);
+    pointer-events: none;
+  }
+
+  .detail-genre{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:12px;
+    color:var(--phosphor);
+    background:rgba(255,69,61,0.08);
+    padding:5px 14px;
+    border-radius:100px;
+    margin-bottom:18px;
+  }
+  .detail-title{
+    font-family:var(--font-display);
+    font-size:26px;
+    line-height:1.5;
+    margin-bottom:20px;
+  }
+  .detail-desc{
+    color:var(--muted);
+    font-size:15px;
+    line-height:1.7;
+    margin-bottom:28px;
+  }
+  .detail-meta-row{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:16px;
+    margin-bottom:30px;
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    padding:20px 0;
+  }
+  .detail-meta-row .k{
+    font-family:var(--font-mono); font-size:10px; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:6px;
+  }
+  .detail-meta-row .v{ font-size:15px; font-weight:600; }
+  .detail-meta-row .v.phosphor{ color:var(--phosphor); }
+  .detail-actions{ display:flex; gap:14px; }
+
+  .detail-lower{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:24px;
+    margin-bottom:60px;
+  }
+  .req-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:28px 26px;
+  }
+  .req-card h4{
+    font-family:var(--font-display);
+    font-size:13px;
+    margin-bottom:22px;
+    color:var(--violet);
+  }
+  .req-row{
+    display:flex; justify-content:space-between; gap:12px;
+    padding:11px 0;
+    border-bottom:1px solid var(--border);
+    font-size:13.5px;
+  }
+  .req-row:last-child{ border-bottom:none; }
+  .req-row .req-label{ color:var(--muted); font-family:var(--font-mono); font-size:12px; }
+  .req-row .req-value{ text-align:right; max-width:60%; }
+
+  .instructions-box{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 28px 26px;
+    margin-bottom: 30px;
+  }
+  .instructions-box h4{
+    font-family: var(--font-display);
+    font-size: 13px;
+    margin-bottom: 22px;
+    color: var(--phosphor);
+  }
+  .instruction-step{
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .instruction-step:last-child{ border-bottom: none; }
+  .instruction-num{
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--phosphor);
+    background: rgba(255,69,61,0.08);
+    width: 24px; height: 24px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .screens-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:18px;
+    margin-bottom:20px;
+  }
+  .screen{
+    aspect-ratio: 16/10;
+    border-radius:14px;
+    border:1px solid var(--border);
+    position:relative;
+    overflow:hidden;
+    transition: transform .2s cubic-bezier(.2,.9,.3,1.3);
+  }
+  .screen:hover{ transform:scale(1.04); }
+  .screen img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .screen::after{
+    content:'';
+    position:absolute; inset:0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0 2px, transparent 2px 4px);
+    pointer-events: none;
+  }
+
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition: opacity .8s cubic-bezier(.16,.84,.44,1), transform .8s cubic-bezier(.16,.84,.44,1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+  .reveal-group .reveal:nth-child(1){ transition-delay:0s; }
+  .reveal-group .reveal:nth-child(2){ transition-delay:.08s; }
+  .reveal-group .reveal:nth-child(3){ transition-delay:.16s; }
+  .reveal-group .reveal:nth-child(4){ transition-delay:.24s; }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ opacity:1; transform:none; transition:none; }
+  }
+
+  @media (max-width: 860px){
+    .hero{ grid-template-columns:1fr; padding-top:60px; }
+    .grid{ grid-template-columns:1fr; }
+    .steps{ grid-template-columns:1fr; }
+    .stats{ grid-template-columns: repeat(2,1fr); }
+    .footer-grid{ grid-template-columns:1fr 1fr; }
+    h1{ font-size:28px; }
+    .nav-links{ display:none; }
+    .cartridge{ order:-1; }
+    .detail-top{ grid-template-columns:1fr; }
+    .detail-lower{ grid-template-columns:1fr; }
+    .detail-meta-row{ grid-template-columns:1fr 1fr; }
+    .screens-grid{ grid-template-columns:1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cursor-ring"></div>
+<div id="cursor-dot"></div>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">PLAY<span>.</span>ZIP</div>
+    <div class="nav-links">
+      <a href="#catalogo" onclick="showHome()">Juegos</a>
+      <a href="#como-funciona" onclick="showHome()">Cómo funciona</a>
+    </div>
+    <div class="header-actions">
+      <a href="#como-funciona" class="btn ghost" onclick="showHome()">Cómo Descargar</a>
+      <a href="#catalogo" class="btn solid" onclick="showHome()">Ver Juegos</a>
+    </div>
+  </nav>
+</header>
+
+<div id="view-home">
+<main class="wrap">
+  <section class="hero">
+    <div class="reveal">
+      <div class="eyebrow">Servidor en línea</div>
+      <h1>Juegos pirateados<br> <em>sin virus.</em>.</h1>
+      <p class="sub">PLAY.ZIP, un lugar para encontrar juegos Piratas sin riesgo de virus.</p>
+      <div class="hero-actions">
+        <a href="#catalogo" class="btn solid">Ver Juegos</a>
+      </div>
+    </div>
+    <div class="cartridge reveal">
+      <div class="cart-body">
+        <div class="cart-label"><span style="color: var(--phosphor);">Creditos</span> <a href="https://Elenemigos.com" target="_blank" rel="noopener" style="color: #0077be;">Elenemigos.com</a></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stats reveal-group">
+    <div class="stat reveal">
+      <span class="num">Instalar <a href="https://www.internetdownloadmanager.com/" target="_blank" rel="noopener" style="color: #0077be;">IDM (click)</a></span>
+      <span class="label">Para una mejor Descarga</span>
+    </div>
+    <div class="stat reveal"><span class="num">No ejecuten setups</span><span class="label">Ningun archivo trae setup</span></div>
+    <div class="stat reveal"><span class="num">no hay nada de virus, links 100% safe</span><span class="label">Falsos positivos en virustotal</span></div>
+    <div class="stat reveal">
+      <span class="num"><a href="https://www.mediafire.com/file/yh5zaqmhucsx6gn/IDMLover_6.4x_Crack_v20.6.rar/file/" target="_blank" rel="noopener" style="color: #0077be;">Crack IDM</a></span>
+      <span class="label">Instalar Crack IDM (contraseña del rar: IDMLOVER) darle a no cuando abran el exe, desactivar Update checker y darle a "IDM Crack"</span>
+    </div>
+  </div>
+
+  <section id="como-funciona">
+    <div class="section-head reveal">
+      <h2>Cómo funciona</h2>
+      <p>De tu carpeta de proyecto al navegador de otra persona, en tres pasos.</p>
+    </div>
+    <div class="steps reveal-group">
+      <div class="step reveal">
+        <span class="n">01</span>
+        <h4>Descargar Archivo</h4>
+        <p>descargas el archivo .zip.</p>
+      </div>
+      <div class="step reveal">
+        <span class="n">02</span>
+        <h4>Comprimir</h4>
+        <p>Click derecho, 7zip, extraer en. contraseña "elenemigos.com".</p>
+      </div>
+      <div class="step reveal">
+        <span class="n">03</span>
+        <h4>Jugar</h4>
+        <p>abres un bat, un exe y a jugar.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="catalogo">
+    <div class="section-head reveal">
+      <h2>Juegos</h2>
+      <p>Acá vas a encontrar los juegos que estan disponibles en este momento.</p>
+    </div>
+    <div class="grid reveal-group" id="game-grid"></div>
+    <div id="empty-state" style="display:none; text-align:center; padding:60px 20px; border:1px dashed var(--border); border-radius:18px; color:var(--muted);">
+      <p style="font-family:var(--font-mono); font-size:13px;">Todavía no hay juegos Disponibles, espera a que suba un juego.</p>
+    </div>
+  </section>
+</main>
+</div>
+
+<div id="view-detail">
+  <main class="wrap">
+    <a href="#catalogo" class="back-btn" onclick="showHome()">← Volver a los Juegos</a>
+    <div id="detail-content"></div>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid reveal">
+      <div>
+        <div class="logo">PLAY<span>.</span>ZIP</div>
+        <p>Un lugar simple para publicar y descubrir juegos hechos por gente como vos.</p>
+      </div>
+      <div class="footer-col">
+        <h5>Plataforma</h5>
+        <a href="#catalogo" onclick="showHome()">Juegos</a>
+        <a href="#como-funciona" onclick="showHome()">Cómo funciona</a>
+      </div>
+      <div class="footer-col">
+        <h5>Comunidad</h5>
+        <a href="#">Discord</a>
+        <a href="#">Jams</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="#">Términos</a>
+        <a href="#">Privacidad</a>
+        <a href="#">Contacto</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 PLAY.ZIP</span>
+      <span>Creditos: Elenemigos.com</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const ring = document.getElementById('cursor-ring');
+  const dot = document.getElementById('cursor-dot');
+
+  let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2;
+  let ringX = mouseX, ringY = mouseY;
+
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    dot.style.left = mouseX + 'px';
+    dot.style.top = mouseY + 'px';
+  });
+
+  window.addEventListener('mousedown', () => document.body.classList.add('clicking'));
+  window.addEventListener('mouseup', () => document.body.classList.remove('clicking'));
+
+  function animateRing(){
+    ringX += (mouseX - ringX) * 0.16;
+    ringY += (mouseY - ringY) * 0.16;
+    ring.style.left = ringX + 'px';
+    ring.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+  function observeReveals(){
+    document.querySelectorAll('.reveal:not(.is-visible)').forEach(el => revealObserver.observe(el));
+  }
+  observeReveals();
+
+  const hoverables = 'a, button, .btn, .game-card, .step';
+  const bigHoverables = '.game-card, .step, .detail-thumb';
+  document.addEventListener('mouseover', (e) => {
+    if(e.target.closest(hoverables)) document.body.classList.add('hovering');
+    if(e.target.closest(bigHoverables)) document.body.classList.add('hovering-big');
+  });
+  document.addEventListener('mouseout', (e) => {
+    if(e.target.closest(hoverables)) document.body.classList.remove('hovering');
+    if(e.target.closest(bigHoverables)) document.body.classList.remove('hovering-big');
+  });
+
+  const games = [
+    {
+      id: 'bodycam',
+      name: 'Bodycam',
+      genre: 'Acción / Shooter / Ultra-Realista',
+      creator: 'Reissad Studios',
+      desc: 'Bodycam es un juego de disparos en primera persona multijugador ultra-realista creado con las últimas tecnologías del motor Unreal Engine 5. Experimentá combates de ritmo frenético con un apartado gráfico fotorrealista impresionantemente inmersivo.',
+      size: '38.09 GB',
+      version: '1.0',
+      released: 'AkiraBox',
+      os: 'Windows 10/11',
+      cpu: 'AMD Ryzen 7 3700X, Intel Core i7-9700K',
+      ram: '8 GB de RAM',
+      gpu: 'AMD Radeon RX 5700 (8 GB), NVIDIA GeForce RTX 2070 (8 GB)',
+      storage: '50 GB de espacio disponible',
+      dev: 'CRACKEADO POR: Godzilla',
+      engine: 'Unreal Engine 5',
+      license: 'Full',
+      site: 'https://akirabox.com/wgWGqOadq34o/file',
+      input: 'Teclado / Mouse',
+      instructions: [
+        'Descomprime el juego utilizando WinRAR/ 7zip / 7zip',
+        'Contraseña del archivo: elenemigos.com',
+		'Ejecuta bodycam.exe como Administrador',
+        '¡A Jugar!'
+      ],
+      media: ['bodycam.png']
+    },
+    {
+      id: 'gta5',
+      name: 'Grand Theft Auto V Legacy',
+      genre: 'Acción / Mundo Abierto',
+      creator: 'Rockstar Games',
+      desc: 'Explorá el vasto mundo abierto de Los Santos y Blaine County. Experimentá la aclamada aventura de acción y mundo abierto de Rockstar Games.',
+      size: '116.41 GB',
+      version: '1.0',
+      released: 'AkiraBox',
+      os: 'Windows 10 de 64 bits',
+      cpu: 'Intel Core 2 Quad CPU Q6600 de 2.4 GHz (4 CPU)/AMD Phenom 9850 Quad-Core (4 CPU) de 2.5 GHz.',
+      ram: '4 GB de RAM',
+      gpu: 'NVIDIA 9800 GT 1 GB/AMD HD 4870 1 GB (DX 10, 10.1, 11)',
+      storage: '120 GB de espacio disponible',
+      dev: 'CRACKEADO POR: Godzilla',
+      engine: 'RAGE Engine',
+      license: 'Full',
+      site: 'https://akirabox.com/k0embxNpAzVb/file',
+      input: 'Teclado / Mouse / Gamepad',
+      instructions: [
+        'Descomprime el juego utilizando WinRAR/ 7zip / 7zip',
+        'Contraseña del archivo: elenemigos.com',
+		'Ejecuta PLayGTAV.exe como Administrador',
+        '¡A Jugar!'
+      ],
+      media: ['gta5.png']
+    },
+    {
+      id: 'rdr2',
+      name: 'Red Dead Redemption 2',
+      genre: 'Aventura / Acción',
+      creator: 'Rockstar Games',
+      desc: 'América, 1899. Arthur Morgan y la banda de Van der Linde son forajidos en fuga. Viví una épica historia sobre el fin de la era del salvaje oeste.',
+      size: '150 GB',
+      version: '1.0',
+      released: 'AkiraBox',
+      os: 'Windows 10 - 64-bit',
+      cpu: 'Intel® Core™ i5-2500K / AMD FX-6300',
+      ram: '8 GB de RAM',
+      gpu: 'Nvidia GeForce GTX 770 2GB / AMD Radeon R9 280 3GB',
+      storage: '150 GB de espacio disponible',
+      dev: 'CRACKEADO POR: Godzilla',
+      engine: 'RAGE Engine',
+      license: 'Full',
+      site: 'https://akirabox.com/b5OzdBoeymB8/file',
+      input: 'Teclado / Mouse / Gamepad',
+      instructions: [
+        'Descomprime el juego utilizando WinRAR/ 7zip / 7zip',
+        'Contraseña del archivo: elenemigos.com',
+		'Ejecuta launcher.exe como Administrador',
+        '¡A Jugar!'
+      ],
+      media: ['rdm2.png']
+    },
+    {
+      id: 'rdr1',
+      name: 'Red Dead Redemption',
+      genre: 'Aventura / Acción',
+      creator: 'Rockstar Games',
+      desc: 'Acompañá a John Marston en su viaje por las vastas extensiones del oeste americano y México mientras intenta dar caza a los últimos miembros de su antigua banda.',
+      size: '12 GB',
+      version: '1.0',
+      released: 'AkiraBox',
+      os: 'Windows 10 64-Bit',
+      cpu: 'Intel® Core™ i5-4670 / AMD FX-9590',
+      ram: '8 GB de RAM',
+      gpu: 'NVIDIA GeForce GTX 960 / AMD Radeon R7 360',
+      storage: '12 GB de espacio disponible',
+      dev: 'CRACKEADO POR: Godzilla',
+      engine: 'RAGE Engine',
+      license: 'Full',
+      site: 'https://akirabox.to/b5OzdBoeymB8/file',
+      input: 'Teclado / Mouse / Gamepad',
+      instructions: [
+        'Descomprime el juego utilizando WinRAR/ 7zip / 7zip',
+        'Contraseña del archivo: elenemigos.com',
+		'Ejecuta _ESPAÑOL.bat como Administrador',
+        '¡A Jugar!'
+      ],
+      media: ['rdm1.png']
+    },{
+      id: 'deltarune',
+      name: 'DELTARUNE',
+      genre: 'pixel art / rpg',
+      creator: 'deltarune',
+      desc: '¡Sumérgete en la historia paralela de UNDERTALE! Lucha o salva tu vida en batallas llenas de acción mientras exploras un mundo misterioso junto a un entrañable elenco de personajes nuevos y conocidos. Los capítulos 1-4 estarán disponibles en el lanzamiento, ¡y hay más disponibles como actualizaciones gratuitas!',
+      size: '672.38 GB',
+      version: 'b24484059',
+      released: 'AkiraBox',
+      os: 'Windows 10/11',
+      cpu: 'Requiere un procesador y un sistema operativo de 64 bits',
+      ram: '2 GB de RAM',
+      gpu: '128 MB',
+      storage: '1 GB de espacio disponible',
+      dev: 'Archivos: Elenemigos',
+      engine: 'Java / Bedrock',
+      license: 'Full',
+      site: 'https://datavaults.co/uvqzmtgj1acn/',
+      input: 'Teclado / Mouse',
+      instructions: [
+        'Descomprime el juego utilizando WinRAR/ 7zip / 7zip',
+        'Contraseña del archivo: elenemigos.com',
+		'Ejecuta DELTARUNE.exe como Administrador',
+        '¡A Jugar!'
+      ],
+      media: ['deltarune.png']
+    },{
+      id: 'motogp19',
+      name: 'motogp19',
+      genre: 'carreras / Motos / simulacion',
+      creator: 'Milestone S.r.l.',
+      desc: 'Explora mundos infinitos y construye desde sencillas casas hasta magníficos castillos en este clásico juego de supervivencia y creatividad.',
+      size: '16.3 GB',
+      version: 'b4909173',
+      released: 'AkiraBox',
+      os: 'Windows 7 64-Bit or later',
+      cpu: 'Intel Core i5-2500, AMD FX-8100 or equivalent',
+      ram: '8 GB de RAM',
+      gpu: 'NVIDIA GeForce GTX 1050 with 2 GB VRAM or more / AMD Radeon HD 7950 with 2 GB VRAM or more',
+      storage: '16 GB de espacio disponible',
+      dev: 'goldberg',
+      engine: 'unreal engine 4',
+      license: 'Full',
+      site: 'https://akirabox.com/M2BGwQvkp3j4/file',
+      input: 'Teclado / Mouse',
+      instructions: [
+        'Descomprime el juego utilizando WinRAR / 7zip',
+        'Contraseña del archivo: elenemigos.com',
+		'Ejecuta motogp19.exe como Administrador',
+        '¡A Jugar!'
+      ],
+      media: ['motogp19.png']
+    }
+  ];
+
+  const grid = document.getElementById('game-grid');
+  const emptyState = document.getElementById('empty-state');
+
+  function renderGrid(){
+    if(games.length === 0){
+      grid.innerHTML = '';
+      if(emptyState) emptyState.style.display = 'block';
+      return;
+    }
+    if(emptyState) emptyState.style.display = 'none';
+    grid.innerHTML = games.map((g, i) => `
+      <button class="game-card reveal" style="transition-delay:${(i % 3) * 0.08}s" onclick="showDetail('${g.id}')">
+        <span class="thumb">
+          <img src="${g.media[0]}" alt="${g.name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/400x200?text='+encodeURIComponent('${g.name}')">
+        </span>
+        <div class="card-body">
+          <h4>${g.name}</h4>
+          <div class="card-meta">
+            <span class="genre">${g.genre}</span>
+            <span>By: ${g.creator}</span>
+          </div>
+        </div>
+      </button>
+    `).join('');
+    observeReveals();
+  }
+  renderGrid();
+
+  const viewHome = document.getElementById('view-home');
+  const viewDetail = document.getElementById('view-detail');
+  const detailContent = document.getElementById('detail-content');
+
+  function showDetail(id){
+    const g = games.find(x => x.id === id);
+    if(!g) return;
+
+    const instructionsHtml = g.instructions.map((step, idx) => `
+      <div class="instruction-step">
+        <span class="instruction-num">${idx + 1}</span>
+        <span>${step}</span>
+      </div>
+    `).join('');
+
+    const mediaHtml = g.media.map(src => `
+      <div class="screen reveal"><img src="${src}" alt="Captura de ${g.name}"></div>
+    `).join('');
+
+    detailContent.innerHTML = `
+      <div class="detail-top reveal">
+        <div class="detail-thumb">
+          <img src="${g.media[0]}" alt="${g.name}">
+        </div>
+        <div>
+          <span class="detail-genre">${g.genre}</span>
+          <h1 class="detail-title">${g.name}</h1>
+          <p class="detail-desc">${g.desc}</p>
+          <div class="detail-meta-row">
+            <div><span class="k">Tamaño</span><span class="v">${g.size}</span></div>
+            <div><span class="k">Versión</span><span class="v">${g.version}</span></div>
+            <div><span class="k">Servidor</span><span class="v">${g.released}</span></div>
+            <div><span class="k">Creador</span><span class="v phosphor">${g.creator}</span></div>
+            <div><span class="k">Género</span><span class="v">${g.genre}</span></div>
+            <div><span class="k">Controles</span><span class="v">${g.input}</span></div>
+          </div>
+          <div class="detail-actions">
+            <a class="btn solid" href="${g.site}" target="_blank" rel="noopener">
+              ↓ Descargar (${g.size})
+            </a>
+            <button class="btn ghost" onclick="alert('Link copiado al portapapeles!')">Compartir</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="instructions-box reveal">
+        <h4>Instrucciones para instalar</h4>
+        ${instructionsHtml}
+      </div>
+
+      <div class="detail-lower reveal-group">
+        <div class="req-card reveal">
+          <h4>REQUISITOS</h4>
+          <div class="req-row"><span class="req-label">Sistema operativo</span><span class="req-value">${g.os}</span></div>
+          <div class="req-row"><span class="req-label">Procesador</span><span class="req-value">${g.cpu}</span></div>
+          <div class="req-row"><span class="req-label">Memoria RAM</span><span class="req-value">${g.ram}</span></div>
+          <div class="req-row"><span class="req-label">Gráficos</span><span class="req-value">${g.gpu}</span></div>
+          <div class="req-row"><span class="req-label">Almacenamiento</span><span class="req-value">${g.storage}</span></div>
+        </div>
+        <div class="req-card reveal">
+          <h4>FICHA TÉCNICA</h4>
+          <div class="req-row"><span class="req-label">Cracked By</span><span class="req-value">${g.dev}</span></div>
+          <div class="req-row"><span class="req-label">Motor</span><span class="req-value">${g.engine}</span></div>
+          <div class="req-row"><span class="req-label">Servidor</span><span class="req-value">${g.released}</span></div>
+          <div class="req-row"><span class="req-label">Licencia</span><span class="req-value">${g.license}</span></div>
+          <div class="req-row"><span class="req-label">Alojamiento</span><span class="req-value">AkiraBox</span></div>
+        </div>
+      </div>
+
+
+    `;
+
+    viewHome.style.display = 'none';
+    viewDetail.style.display = 'block';
+    window.scrollTo({top:0, behavior:'instant'});
+    observeReveals();
+  }
+
+  function showHome(){
+    viewDetail.style.display = 'none';
+    viewHome.style.display = 'block';
+  }
+  window.showDetail = showDetail;
+  window.showHome = showHome;
+</script>
+
+</body>
+</html>
